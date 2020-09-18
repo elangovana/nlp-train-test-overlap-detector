@@ -1,9 +1,12 @@
+import argparse
 import logging
+import sys
 
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 from base_data_loader import BaseDataLoader
+from similarity_evaluator import SimilarityEvaluator
 
 
 class AIMedDataLoaderUniqueDoc(BaseDataLoader):
@@ -40,3 +43,27 @@ class AIMedDataLoaderUniqueDoc(BaseDataLoader):
             val = df[df[docid_field_name].isin(test_doc)]
 
             yield (train, val)
+
+
+def _parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--trainfile",
+                        help="The input train file ", required=True)
+    parser.add_argument("--log-level", help="Log level", default="INFO", choices={"INFO", "WARN", "DEBUG", "ERROR"})
+    args = parser.parse_args()
+    print(args.__dict__)
+    # Set up logging
+    logging.basicConfig(level=logging.getLevelName(args.log_level), handlers=[logging.StreamHandler(sys.stdout)],
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    return args
+
+
+def run(trainfile):
+    train, test = AIMedDataLoaderUniqueDoc().load(trainfile)
+    SimilarityEvaluator().run(test, train)
+
+
+if "__main__" == __name__:
+    args = _parse_args()
+    run(args.trainfile)

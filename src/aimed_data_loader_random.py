@@ -1,16 +1,12 @@
 import argparse
-import json
 import logging
 import sys
 
-import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 from base_data_loader import BaseDataLoader
-from cosine_similarity_comparer import CosineSimilarityComparer
-from overlap_detector import OverlapDetector
-from unigram_tokeniser import UnigramTokeniser
+from similarity_evaluator import SimilarityEvaluator
 
 
 class AIMedDataLoaderRandom(BaseDataLoader):
@@ -53,16 +49,7 @@ def _parse_args():
 
 def run(trainfile):
     train, test = AIMedDataLoaderRandom().load(trainfile)
-
-    sut = OverlapDetector(CosineSimilarityComparer(UnigramTokeniser()))
-    result = sut.compare(test, train, columns=["passage"])
-    scores = result["passage"]["score"]
-
-    score_stats = {"min": np.min(scores), "max": np.max(scores), "std": np.std(scores), "mean": np.mean(scores),
-                   "median": np.median(scores)}
-    print(json.dumps(result, indent=1))
-
-    print(score_stats)
+    SimilarityEvaluator().run(test, train)
 
 
 if "__main__" == __name__:
