@@ -30,20 +30,19 @@ class TestSitOverlapDetector(TestCase):
         ]
         )
         expected = {
-            "text": [
-                [100.0,
-                 "Protein kinease phosphorylates ps1",
-                 "Protein kinease phosphorylates ps1"
-                 ]
-                , [83.3333,
-                   "The mouse klk3 kinease does not seem to activate ps4",
-                   "The mouse klk3 kinease does not seem to activate p19"
-                   ]
-
-            ]
+            "text": {
+                "score": [100.0, 83.3333],
+                "details": [
+                    ("Protein kinease phosphorylates ps1",
+                     "Protein kinease phosphorylates ps1")
+                    , ("The mouse klk3 kinease does not seem to activate ps4",
+                       "The mouse klk3 kinease does not seem to activate p19")
+                ]
+            }
         }
 
         # Act
         actual = sut.compare(src_df, target_df)
 
-        self.assertSequenceEqual(expected["text"], actual["text"])
+        self.assertSequenceEqual(expected["text"]["score"], actual["text"]["score"])
+        self.assertSequenceEqual(expected["text"]["details"], actual["text"]["details"])

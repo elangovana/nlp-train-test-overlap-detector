@@ -9,12 +9,15 @@ class OverlapDetector:
         result = {}
 
         for c in columns:
-            result[c] = self._compare_rows_text(source_df[c].tolist(), target_df[c].tolist())
+            result[c] = {}
+            result[c]["score"], result[c]["details"] = self._compare_rows_text(source_df[c].tolist(),
+                                                                               target_df[c].tolist())
 
         return result
 
     def _compare_rows_text(self, src_rows, target_rows):
-        result = []
+        result_score = []
+        result_detailed_match = []
 
         for s_row in src_rows:
 
@@ -26,6 +29,7 @@ class OverlapDetector:
                     best_score = score
                     best_match = t_row
 
-            result.append([best_score, s_row, best_match])
+            result_score.append(best_score)
+            result_detailed_match.append((s_row, best_match))
 
-        return result
+        return result_score, result_detailed_match
