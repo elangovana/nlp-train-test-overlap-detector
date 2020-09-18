@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+import numpy as np
 import pandas as pd
 
 from cosine_similarity_comparer import CosineSimilarityComparer
@@ -44,5 +45,5 @@ class TestSitOverlapDetector(TestCase):
         # Act
         actual = sut.compare(src_df, target_df)
 
-        self.assertSequenceEqual(expected["text"]["score"], actual["text"]["score"])
+        self.assertSequenceEqual(expected["text"]["score"], np.round(actual["text"]["score"], 4).tolist())
         self.assertSequenceEqual(expected["text"]["details"], actual["text"]["details"])

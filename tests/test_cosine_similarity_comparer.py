@@ -15,10 +15,10 @@ class TestCosineSimilarityComparer(TestCase):
         tokeniser_mock.tokenise = lambda x: x.split(" ")
         sut = CosineSimilarityComparer(tokeniser_mock)
         src_sentence = "This is a sample"
-        expected_score = 100
+        expected_score = [100]
 
         # Act
-        actual = sut(src_sentence, src_sentence)
+        actual = sut([src_sentence], [src_sentence])
 
         self.assertEqual(expected_score, actual)
 
@@ -33,9 +33,9 @@ class TestCosineSimilarityComparer(TestCase):
         sut = CosineSimilarityComparer(tokeniser_mock)
         src_sentence = "This is a sample"
         target_sentence = "Magic Mountain is amazing"
-        expected_score = 0
+        expected_score = [0]
 
         # Act
-        actual = sut(src_sentence, target_sentence)
+        actual = sut([src_sentence], [target_sentence])
 
         self.assertEqual(expected_score, actual)
