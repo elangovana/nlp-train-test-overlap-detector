@@ -4,7 +4,7 @@ import sys
 
 import pandas as pd
 
-from similarity_evaluator import SimilarityEvaluator
+from similarity.similarity_evaluator import SimilarityEvaluator
 
 
 class BiocreativeGeneMention:

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from src.cosine_similarity_comparer import CosineSimilarityComparer
+from similarity.cosine_similarity_comparer import CosineSimilarityComparer
 
 
 class TestCosineSimilarityComparer(TestCase):

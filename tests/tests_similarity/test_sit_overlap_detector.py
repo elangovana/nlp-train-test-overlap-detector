@@ -3,9 +3,9 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 
-from cosine_similarity_comparer import CosineSimilarityComparer
-from overlap_detector import OverlapDetector
-from unigram_tokeniser import UnigramTokeniser
+from similarity.cosine_similarity_comparer import CosineSimilarityComparer
+from similarity.overlap_detector import OverlapDetector
+from similarity.unigram_tokeniser import UnigramTokeniser
 
 
 class TestSitOverlapDetector(TestCase):

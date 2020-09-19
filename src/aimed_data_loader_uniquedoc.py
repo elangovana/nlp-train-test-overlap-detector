@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 from base_data_loader import BaseDataLoader
-from similarity_evaluator import SimilarityEvaluator
+from similarity.similarity_evaluator import SimilarityEvaluator
 
 
 class AIMedDataLoaderUniqueDoc(BaseDataLoader):

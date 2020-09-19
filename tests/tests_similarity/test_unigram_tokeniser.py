@@ -1,7 +1,7 @@
 
 from unittest import TestCase
 
-from src.unigram_tokeniser import UnigramTokeniser
+from similarity.unigram_tokeniser import UnigramTokeniser
 
 
 class TestUnigramTokeniser(TestCase):

@@ -1,7 +1,7 @@
 
 from unittest import TestCase
 
-from src.bigram_tokeniser import BigramTokeniser
+from similarity.bigram_tokeniser import BigramTokeniser
 
 
 class TestBigramTokeniser(TestCase):

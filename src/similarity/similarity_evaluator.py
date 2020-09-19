@@ -2,11 +2,11 @@ import json
 
 import numpy as np
 
-from bigram_tokeniser import BigramTokeniser
-from cosine_similarity_comparer import CosineSimilarityComparer
-from overlap_detector import OverlapDetector
-from trigram_tokeniser import TrigramTokeniser
-from unigram_tokeniser import UnigramTokeniser
+from similarity.bigram_tokeniser import BigramTokeniser
+from similarity.cosine_similarity_comparer import CosineSimilarityComparer
+from similarity.overlap_detector import OverlapDetector
+from similarity.trigram_tokeniser import TrigramTokeniser
+from similarity.unigram_tokeniser import UnigramTokeniser
 
 
 class SimilarityEvaluator:

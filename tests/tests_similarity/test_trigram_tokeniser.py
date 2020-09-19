@@ -1,7 +1,7 @@
 
 from unittest import TestCase
 
-from src.trigram_tokeniser import TrigramTokeniser
+from similarity.trigram_tokeniser import TrigramTokeniser
 
 
 class TestTrigramTokeniser(TestCase):

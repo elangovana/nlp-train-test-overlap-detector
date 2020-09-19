@@ -3,7 +3,7 @@ from typing import List
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from base_similarity_comparer import BaseSimilarityComparer
+from similarity.base_similarity_comparer import BaseSimilarityComparer
 
 
 class CosineSimilarityComparer(BaseSimilarityComparer):
