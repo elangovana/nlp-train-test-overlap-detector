@@ -18,6 +18,8 @@ class SimilarityEvaluator:
                             "Trigram": TrigramTokeniser()}
 
     def run(self, test, train):
+        score_summary = {}
+        result_detail = {}
         for k, t in self._tokenisers.items():
             comparer = OverlapDetector(CosineSimilarityComparer(t))
             result = comparer.compare(test, train, columns=["passage"])
@@ -27,6 +29,9 @@ class SimilarityEvaluator:
             score_stats = {"min": np.min(scores), "max": np.max(scores), "std": np.std(scores), "mean": np.mean(scores),
                            "median": np.median(scores)}
 
-            print(f"---{k}---")
-            print(score_stats)
-            print(json.dumps(detail[0:3], indent=1))
+            score_summary[k] = score_stats
+            result_detail[k] = detail
+
+        for k, v in score_summary.items():
+            print(k)
+            print(json.dumps(v, indent=1))
