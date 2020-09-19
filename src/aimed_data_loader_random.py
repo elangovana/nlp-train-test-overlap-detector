@@ -49,7 +49,7 @@ def _parse_args():
 
 def run(trainfile):
     train, test = AIMedDataLoaderRandom().load(trainfile)
-    SimilarityEvaluator().run(test, train)
+    SimilarityEvaluator().run(test, train, column="passage")
 
 
 if "__main__" == __name__:

@@ -17,21 +17,26 @@ class SimilarityEvaluator:
                             "Bigram": BigramTokeniser(),
                             "Trigram": TrigramTokeniser()}
 
-    def run(self, test, train):
-        score_summary = {}
+    def run(self, test, train, column):
+        result_score = {}
         result_detail = {}
         for k, t in self._tokenisers.items():
             comparer = OverlapDetector(CosineSimilarityComparer(t))
-            result = comparer.compare(test, train, columns=["passage"])
-            scores = result["passage"]["score"]
-            detail = result["passage"]["details"]
+            comparison_result = comparer.compare(test, train, columns=[column])
+            scores = comparison_result[column]["score"]
+            detail = comparison_result[column]["details"]
 
-            score_stats = {"min": np.min(scores), "max": np.max(scores), "std": np.std(scores), "mean": np.mean(scores),
-                           "median": np.median(scores)}
-
-            score_summary[k] = score_stats
+            result_score[k] = scores
             result_detail[k] = detail
 
-        for k, v in score_summary.items():
+        for k, v in result_score.items():
             print(k)
-            print(json.dumps(v, indent=1))
+            scores = v
+            score_stats = {"min": np.min(scores), "max": np.max(scores), "std": np.std(scores), "mean": np.mean(scores),
+                           "median": np.median(scores)}
+            print(json.dumps(score_stats, indent=1))
+
+        for k, v in result_detail.items():
+            index = np.argmax(result_score[k])
+            print(k)
+            print(json.dumps(v[index], indent=1))
