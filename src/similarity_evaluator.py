@@ -37,6 +37,9 @@ class SimilarityEvaluator:
             print(json.dumps(score_stats, indent=1))
 
         for k, v in result_detail.items():
-            index = np.argmax(result_score[k])
+            top_k = np.argsort(result_score[k])[-5:]
+            # index = np.argmax(result_score[k])
             print(k)
-            print(json.dumps(v[index], indent=1))
+            print(json.dumps(np.array(v)[top_k].tolist(), indent=1))
+
+        return result_score, result_detail

@@ -16,7 +16,7 @@ class BiocreativeGeneMention:
         data = []
         with open(file, "r") as f:
             for l in f.readlines():
-                text = " ".join(l.split(" ")[1:])
+                text = " ".join(l.split(" ")[1:]).rstrip("\n")
                 data.append(text)
         df = pd.DataFrame(data={"text": data})
         return df
@@ -31,7 +31,7 @@ class BiocreativeGeneAnnotation:
         data = []
         with open(file, "r") as f:
             for l in f.readlines():
-                text = l.split("|")[2]
+                text = l.split("|")[2].rstrip("\n")
                 data.append(text)
         df = pd.DataFrame(data={"text": data})
         return df
@@ -66,7 +66,11 @@ def run(comparison_type, trainfile, testfile):
     train = loaders[comparison_type].load(trainfile)
     test = loaders[comparison_type].load(testfile)
 
-    SimilarityEvaluator().run(test, train, column="text")
+    _, result_detail = SimilarityEvaluator().run(test, train, column="text")
+
+    for k, v in result_detail.items():
+        count = len(list(filter(lambda x: x[0] == x[1], v)))
+        print("Exact matches {}, {} / {}".format(k, count, len(test)))
 
 
 if "__main__" == __name__:
