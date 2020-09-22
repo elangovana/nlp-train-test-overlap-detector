@@ -5,11 +5,10 @@ import sys
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
-from base_data_loader import BaseDataLoader
 from similarity.similarity_evaluator import SimilarityEvaluator
 
 
-class AIMedDataLoaderUniqueDoc(BaseDataLoader):
+class AIMedUniqueDoc:
 
     def __init__(self, label_field_name=None, docid_field_name=None):
         self._docid_field_name = docid_field_name or "docid"
@@ -60,7 +59,7 @@ def _parse_args():
 
 
 def run(trainfile):
-    train, test = AIMedDataLoaderUniqueDoc().load(trainfile)
+    train, test = AIMedUniqueDoc().load(trainfile)
     SimilarityEvaluator().run(test, train, column="passage")
 
 

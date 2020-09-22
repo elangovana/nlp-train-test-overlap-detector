@@ -5,11 +5,10 @@ import sys
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
-from base_data_loader import BaseDataLoader
 from similarity.similarity_evaluator import SimilarityEvaluator
 
 
-class AIMedDataLoaderRandom(BaseDataLoader):
+class AIMedRandom:
 
     def __init__(self, label_field_name=None):
         self._label_field_name = label_field_name or "isValid"
@@ -48,7 +47,7 @@ def _parse_args():
 
 
 def run(trainfile):
-    train, test = AIMedDataLoaderRandom().load(trainfile)
+    train, test = AIMedRandom().load(trainfile)
     SimilarityEvaluator().run(test, train, column="passage")
 
 
