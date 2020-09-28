@@ -6,8 +6,16 @@ import pandas as pd
 
 from similarity.similarity_evaluator import SimilarityEvaluator
 
+"""
 
-class BC2GeneMention:
+Task 1A: Gene Mention Tagging [2006-04-01]
+
+Gene Mention Tagging task is concerned with the named entity extraction of gene and gene product mentions in text. 
+"""
+
+
+class BC2GeneMentionText:
+
 
     def __init__(self):
         pass
@@ -22,7 +30,7 @@ class BC2GeneMention:
         return df
 
 
-class BiocreativeGeneAnnotation:
+class BC2GeneMentionAnnotation:
 
     def __init__(self):
         pass
@@ -59,8 +67,8 @@ def _parse_args():
 
 def run(comparison_type, trainfile, testfile):
     loaders = {
-        "text": BiocreativeGeneMention()
-        , "eval": BiocreativeGeneAnnotation()
+        "text": BC2GeneMentionText()
+        , "eval": BC2GeneMentionAnnotation()
     }
 
     train = loaders[comparison_type].load(trainfile)
