@@ -8,7 +8,7 @@
 
     ```bash
     export PYTHONPATH=./src
-    python src/biocreative_gene_mention.py --trainfile "biocreative_gene_mention.in" --testfile "biocreative_gene_mention.in" --type text
+    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.in" --testfile "tests/data/bc2_gene_mention.in" --type text
     
     ```
 
@@ -16,6 +16,6 @@
 
     ```bash
     export PYTHONPATH=./src
-    python src/biocreative_gene_mention.py --trainfile "biocreative_gene_mention.eval" --testfile "biocreative_gene_mention.eval" --type eval
+    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.eval" --testfile "tests/data/bc2_gene_mention.eval" --type eval
     
     ```
