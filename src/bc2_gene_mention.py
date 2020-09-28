@@ -7,7 +7,7 @@ import pandas as pd
 from similarity.similarity_evaluator import SimilarityEvaluator
 
 
-class BiocreativeGeneMention:
+class BC2GeneMention:
 
     def __init__(self):
         pass
