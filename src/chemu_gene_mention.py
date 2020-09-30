@@ -56,8 +56,10 @@ def run(traindir, testdir):
     train = ChemuGeneMention().load(traindir)
     test = ChemuGeneMention().load(testdir)
 
-    # Evaluate text similarity
-    _, result_detail = SimilarityEvaluator().run(test, train, column="text")
+    # Evaluate text similarity, use unique text
+    _, result_detail = SimilarityEvaluator().run(pd.DataFrame(data={"text": test["text"].unique()}),
+                                                 pd.DataFrame(data={"text": train["text"].unique()}),
+                                                 column="text")
 
     # Evaluate per entity type
     for e in train["entity_type"].unique():
