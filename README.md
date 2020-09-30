@@ -33,3 +33,14 @@
     python src/bc3_article_classification.py --trainfile "bc3_act_all_records.tsv" --testfile "bc3_act_all_records_test.tsv" 
     
     ```
+
+
+## Chemu entity recognition
+
+- This compares the text overlap between train and test
+
+    ```bash
+    export PYTHONPATH=./src
+    python src/chemu_gene_mention.py --traindir "train" --testdir "test" 
+    
+    ```

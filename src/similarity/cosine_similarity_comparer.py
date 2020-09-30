@@ -1,5 +1,6 @@
 from typing import List
 
+import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -14,7 +15,13 @@ class CosineSimilarityComparer(BaseSimilarityComparer):
                                                  token_pattern=None)
 
     def __call__(self, source: List[str], target: List[str]) -> List[float]:
-        vectoriser = self._count_vectoriser.fit(source + target)
+        try:
+            vectoriser = self._count_vectoriser.fit(source + target)
+        # Only stop words
+        except ValueError as e:
+            print(e)
+            return np.zeros((len(source), len(target))).tolist()
+
         src_vector = vectoriser.transform(source)
         target_vector = vectoriser.transform(target)
 
