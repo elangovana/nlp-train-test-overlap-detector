@@ -2,20 +2,16 @@ import json
 
 import numpy as np
 
-from similarity.bigram_tokeniser import BigramTokeniser
 from similarity.cosine_similarity_comparer import CosineSimilarityComparer
 from similarity.overlap_detector import OverlapDetector
-from similarity.trigram_tokeniser import TrigramTokeniser
-from similarity.unigram_tokeniser import UnigramTokeniser
 
 
 class SimilarityEvaluator:
 
     def __init__(self):
-        self._tokenisers = {"Unigram":
-                                UnigramTokeniser(),
-                            "Bigram": BigramTokeniser(),
-                            "Trigram": TrigramTokeniser()}
+        self._tokenisers = {"Unigram": 1,
+                            "Bigram": 2,
+                            "Trigram": 3}
 
     def run(self, test, train, column):
         result_score = {}

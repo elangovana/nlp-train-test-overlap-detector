@@ -1,5 +1,4 @@
 from unittest import TestCase
-from unittest.mock import MagicMock
 
 from similarity.cosine_similarity_comparer import CosineSimilarityComparer
 
@@ -11,9 +10,8 @@ class TestCosineSimilarityComparer(TestCase):
         :return:
         """
         # Arrange
-        tokeniser_mock = MagicMock()
-        tokeniser_mock.tokenise = lambda x: x.split(" ")
-        sut = CosineSimilarityComparer(tokeniser_mock)
+
+        sut = CosineSimilarityComparer(1)
         src_sentence = "This is a sample"
         expected_score = [100]
 
@@ -28,9 +26,8 @@ class TestCosineSimilarityComparer(TestCase):
         :return:
         """
         # Arrange
-        tokeniser_mock = MagicMock()
-        tokeniser_mock.tokenise = lambda x: x.split(" ")
-        sut = CosineSimilarityComparer(tokeniser_mock)
+
+        sut = CosineSimilarityComparer(1)
         src_sentence = "This is a sample"
         target_sentence = "Magic Mountain is amazing"
         expected_score = [0]

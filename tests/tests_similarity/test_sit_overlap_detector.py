@@ -5,7 +5,6 @@ import pandas as pd
 
 from similarity.cosine_similarity_comparer import CosineSimilarityComparer
 from similarity.overlap_detector import OverlapDetector
-from similarity.unigram_tokeniser import UnigramTokeniser
 
 
 class TestSitOverlapDetector(TestCase):
@@ -16,7 +15,7 @@ class TestSitOverlapDetector(TestCase):
         """
         # Arrange
 
-        comparer = CosineSimilarityComparer(UnigramTokeniser())
+        comparer = CosineSimilarityComparer(1)
         sut = OverlapDetector(comparer)
 
         src_df = pd.DataFrame([
