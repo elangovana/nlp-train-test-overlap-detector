@@ -10,7 +10,7 @@
 
     ```bash
     export PYTHONPATH=./src
-    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.in" --testfile "tests/data/bc2_gene_mention.in" --type text
+    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.in" --testfile "tests/data/bc2_gene_mention.in" --type text --outputdir "outputdir"
     
     ```
 
@@ -18,7 +18,7 @@
 
     ```bash
     export PYTHONPATH=./src
-    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.eval" --testfile "tests/data/bc2_gene_mention.eval" --type eval
+    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.eval" --testfile "tests/data/bc2_gene_mention.eval" --type eval --outdir "outputdir"
     
     ```
 
