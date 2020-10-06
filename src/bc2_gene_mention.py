@@ -91,7 +91,7 @@ def run(comparison_type, trainfile, testfile, outputdir, additional_eval_files=N
         , "eval": BC2GeneMentionText().load_annotation
     }
     additional_eval_files = additional_eval_files or ""
-    additional_eval_files = additional_eval_files.split(",")
+    additional_eval_files = additional_eval_files.split(",") if len(additional_eval_files) > 0 else []
     train = loaders[comparison_type](trainfile)
     test = loaders[comparison_type](testfile)
 
