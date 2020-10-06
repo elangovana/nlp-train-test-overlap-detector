@@ -21,19 +21,25 @@ class BC2GeneMentionText:
 
     def load_text(self, file):
         data = []
+        sep = " "
+
         with open(file, "r") as f:
             for l in f.readlines():
-                text = " ".join(l.split(" ")[1:]).rstrip("\n")
-                data.append({"text": text, "raw": l})
+                docid = l.split(sep)[0]
+                text = sep.join(l.split(sep)[1:]).rstrip("\n")
+                data.append({"text": text, "docid": docid, "raw": l})
         df = pd.DataFrame(data)
         return df
 
     def load_annotation(self, file):
         data = []
+        sep = "|"
+
         with open(file, "r") as f:
             for l in f.readlines():
-                text = l.split("|")[2].rstrip("\n")
-                data.append({"text": text, "raw": l})
+                docid = l.split(sep)[0]
+                text = l.split(sep)[2].rstrip("\n")
+                data.append({"text": text, "raw": l, "docid": docid})
         df = pd.DataFrame(data)
         return df
 
@@ -49,6 +55,9 @@ def _parse_args():
                         help="The input train file ", required=True)
     parser.add_argument("--testfile",
                         help="The input test file ", required=True)
+    parser.add_argument("--extraeval",
+                        help="Additional Eval files to split based on doc id separated by comma ", required=False,
+                        default=None)
     parser.add_argument("--outdir",
                         help="The output dir", required=True)
     parser.add_argument("--type",
@@ -65,12 +74,24 @@ def _parse_args():
     return args
 
 
-def run(comparison_type, trainfile, testfile, outputdir):
+def write_extras(df, additional_eval_files, outputdir, suffix):
+    bc2gm = BC2GeneMentionText()
+
+    for eval_f in additional_eval_files:
+        print("Running {}".format(eval_f))
+        eval_df = bc2gm.load_annotation(eval_f)
+        filtered_eval_df = eval_df[eval_df["docid"].isin(df["docid"])]
+        outfile = os.path.join(outputdir, "{}_{}".format(os.path.basename(eval_f), suffix))
+        bc2gm.write(filtered_eval_df, outfile)
+
+
+def run(comparison_type, trainfile, testfile, outputdir, additional_eval_files=None):
     loaders = {
         "text": BC2GeneMentionText().load_text
         , "eval": BC2GeneMentionText().load_annotation
     }
-
+    additional_eval_files = additional_eval_files or ""
+    additional_eval_files = additional_eval_files.split(",")
     train = loaders[comparison_type](trainfile)
     test = loaders[comparison_type](testfile)
 
@@ -92,6 +113,7 @@ def run(comparison_type, trainfile, testfile, outputdir):
             splitter = SimilaritySplitter(ngram=n, column="text")
             df = splitter.get(test, train, min_t, max_t)
             BC2GeneMentionText().write(df, outfile)
+            write_extras(df, additional_eval_files, outputdir, suffix="{}_{}.txt".format(n, min_t))
             result_split_summary.append(
                 {"ngram": n, "min": min_t, "max": max_t, "num": len(df), "percent": len(df) * 100 / len(test)})
     print(json.dumps(result_split_summary, indent=1))
@@ -99,4 +121,4 @@ def run(comparison_type, trainfile, testfile, outputdir):
 
 if "__main__" == __name__:
     args = _parse_args()
-    run(args.type, args.trainfile, args.testfile, args.outdir)
+    run(args.type, args.trainfile, args.testfile, args.outdir, args.extraeval)

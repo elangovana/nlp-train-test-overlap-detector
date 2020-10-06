@@ -2,6 +2,17 @@
 
 # NLP Train-Test overlap detector
 
+## AIMed dataset
+
+### Random split
+- This compares the text between train and test using random split
+
+    ```bash
+    export PYTHONPATH=./src
+    python src/aimed_random.py --trainfile "trainfile.json" 
+    
+    ```
+    
 ## Biocreative II gene mention
 
 [Biocreative II gene mention](https://biocreative.bioinformatics.udel.edu/tasks/biocreative-ii/) overlap. Please download the test and train files for this task from the BioCreative Website.
@@ -10,7 +21,9 @@
 
     ```bash
     export PYTHONPATH=./src
-    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.in" --testfile "tests/data/bc2_gene_mention.in" --type text --outputdir "outputdir"
+
+    outputdir=split
+    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.in" --testfile "tests/data/bc2_gene_mention.in" --type text --outputdir $outputdir --extraeval "predictions.txt,testGENE.eval,ALTGENE.eval"
     
     ```
 
@@ -18,9 +31,25 @@
 
     ```bash
     export PYTHONPATH=./src
-    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.eval" --testfile "tests/data/bc2_gene_mention.eval" --type eval --outdir "outputdir"
+  
+    outputdir=split
+    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.eval" --testfile "tests/data/testGene.eval" --type eval --outdir $outputdir
     
     ```
+
+- Evaluating splits
+
+    Download the eval script from provided as part of training data
+    [Biocreative II gene mention](https://biocreative.bioinformatics.udel.edu/tasks/biocreative-ii/) overlap. Please download the test and train files for this task from the BioCreative Website.
+
+     ```bash
+     base_dir=tmp
+     predictionprefix=result_test_pred.txt
+     n=1
+     t=0
+     perl $base_dir/alt_eval.perl -gene $base_dir/split/testGENE.eval_${n}_${t}.txt -altgene $base_dir/split/ALTGENE.eval_${n}_${t}.txt $base_dir/split/${predictionprefix}_${n}_${t}.txt
+     ```
+
 
 ## Biocreative III Protein interaction article classification
 
