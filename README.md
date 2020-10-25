@@ -73,3 +73,14 @@
     python src/chemu_gene_mention.py --traindir "train" --testdir "test" 
     
     ```
+    s
+
+## SST 2 datatset
+
+```bash
+export PYTHONPATH=./src
+export datadir=./tmp
+python src/sst2_dataset.py  --sentencefile $datadir/datasetSentences.txt --sentiment $datadir/sentiment_labels.txt --dictionary $datadir/dictionary.txt --split $datadir/datasetSplit.txt 
+
+```
+
