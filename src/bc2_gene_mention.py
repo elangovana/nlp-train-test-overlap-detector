@@ -101,7 +101,7 @@ def run(comparison_type, trainfile, testfile, outputdir, additional_eval_files=N
         count = len(list(filter(lambda x: x[0] == x[1], v)))
         print("Exact matches {}, {} / {}".format(k, count, len(test)))
 
-    thresholds = [0, 25, 50, 75, 101]
+    thresholds = [0, .00001, 25, 50, 75, 100, 101]
     ngram = [1, 2, 3]
     result_split_summary = []
     for n in ngram:
