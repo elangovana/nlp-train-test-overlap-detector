@@ -11,7 +11,7 @@ class TestCosineSimilarityComparer(TestCase):
         """
         # Arrange
 
-        sut = CosineSimilarityComparer(1)
+        sut = CosineSimilarityComparer(1, stop_words='english')
         src_sentence = "This is a sample"
         expected_score = [100]
 
@@ -27,7 +27,7 @@ class TestCosineSimilarityComparer(TestCase):
         """
         # Arrange
 
-        sut = CosineSimilarityComparer(1)
+        sut = CosineSimilarityComparer(1, stop_words='english')
         src_sentence = "This is a sample"
         target_sentence = "Magic Mountain is amazing"
         expected_score = [0]

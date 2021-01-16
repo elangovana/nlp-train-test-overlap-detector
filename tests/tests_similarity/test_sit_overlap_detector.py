@@ -15,7 +15,7 @@ class TestSitOverlapDetector(TestCase):
         """
         # Arrange
 
-        comparer = CosineSimilarityComparer(1)
+        comparer = CosineSimilarityComparer(1, stop_words='english')
         sut = OverlapDetector(comparer)
 
         src_df = pd.DataFrame([

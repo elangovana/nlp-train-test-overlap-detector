@@ -9,8 +9,8 @@ from similarity.base_similarity_comparer import BaseSimilarityComparer
 
 class CosineSimilarityComparer(BaseSimilarityComparer):
 
-    def __init__(self, ngram):
-        self._count_vectoriser = CountVectorizer(stop_words='english', ngram_range=(ngram, ngram))
+    def __init__(self, ngram, stop_words=None):
+        self._count_vectoriser = CountVectorizer(stop_words=stop_words, ngram_range=(ngram, ngram))
 
     def __call__(self, source: List[str], target: List[str]) -> List[float]:
         try:
