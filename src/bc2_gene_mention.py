@@ -95,7 +95,7 @@ def run(comparison_type, trainfile, testfile, outputdir, additional_eval_files=N
     train = loaders[comparison_type](trainfile)
     test = loaders[comparison_type](testfile)
 
-    _, result_detail = SimilarityEvaluator().run(test, train, column="text")
+    result_score, result_detail = SimilarityEvaluator().run(test, train, column="text")
 
     for k, v in result_detail.items():
         count = len(list(filter(lambda x: x[0] == x[1], v)))
@@ -116,9 +116,13 @@ def run(comparison_type, trainfile, testfile, outputdir, additional_eval_files=N
             write_extras(df, additional_eval_files, outputdir, suffix="{}_{}.txt".format(n, min_t))
             result_split_summary.append(
                 {"ngram": n, "min": min_t, "max": max_t, "num": len(df), "percent": len(df) * 100 / len(test)})
-    print(json.dumps(result_split_summary, indent=1))
+    return result_score, result_detail, result_split_summary
 
 
 if "__main__" == __name__:
     args = _parse_args()
-    run(args.type, args.trainfile, args.testfile, args.outdir, args.extraeval)
+    result_score, result_detail, result_split_summary = run(args.type, args.trainfile, args.testfile, args.outdir,
+                                                            args.extraeval)
+    SimilarityEvaluator().print_summary(result_score, result_detail)
+
+    print(json.dumps(result_split_summary, indent=1))

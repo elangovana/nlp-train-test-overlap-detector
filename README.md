@@ -23,7 +23,7 @@
     export PYTHONPATH=./src
 
     outputdir=split
-    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.in" --testfile "tests/data/bc2_gene_mention.in" --type text --outputdir $outputdir --extraeval "predictions.txt,testGENE.eval,ALTGENE.eval"
+    python src/bc2_gene_mention.py --trainfile "tests/data/bc2_gene_mention.in" --testfile "tests/data/bc2_gene_mention.in" --type text --outdir $outputdir --extraeval "predictions.txt,testGENE.eval,ALTGENE.eval"
     
     ```
 
