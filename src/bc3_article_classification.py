@@ -24,8 +24,15 @@ class BC3ArticleClassification:
         df = pd.DataFrame(data)
         return df
 
+    def run_similarity_comparer(self, trainfile, testfile):
+        train = self.load(trainfile)
+        test = self.load(testfile)
 
-def _parse_args():
+        result_score, result_detail = SimilarityEvaluator().run(test, train, column="abstract")
+        return result_score, result_detail
+
+
+def run_main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--trainfile",
                         help="The input train TSV file ", required=True)
@@ -40,16 +47,12 @@ def _parse_args():
     logging.basicConfig(level=logging.getLevelName(args.log_level), handlers=[logging.StreamHandler(sys.stdout)],
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    return args
+    result_score, result_detail = BC3ArticleClassification().run_similarity_comparer(args.trainfile, args.testfile)
+    SimilarityEvaluator().print_summary(result_score, result_detail)
 
 
-def run(trainfile, testfile):
-    train = BC3ArticleClassification().load(trainfile)
-    test = BC3ArticleClassification().load(testfile)
 
-    result_score, result_detail = SimilarityEvaluator().run(test, train, column="abstract")
 
 
 if "__main__" == __name__:
-    args = _parse_args()
-    run(args.trainfile, args.testfile)
+    run_main()
