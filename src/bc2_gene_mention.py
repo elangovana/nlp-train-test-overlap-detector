@@ -20,6 +20,11 @@ Gene Mention Tagging task is concerned with the named entity extraction of gene 
 class BC2GeneMentionText:
 
     def load_text(self, file):
+        """
+        Loads the BC2GM input file and converts to dataframe
+        :param file:
+        :return:
+        """
         data = []
         sep = " "
 
@@ -32,6 +37,12 @@ class BC2GeneMentionText:
         return df
 
     def load_annotation(self, file):
+        """
+        Loads the BC2GM annotation file and converts to dataframe
+
+        :param file:
+        :return:
+        """
         data = []
         sep = "|"
 
@@ -44,12 +55,90 @@ class BC2GeneMentionText:
         return df
 
     def write(self, df, file):
+        """
+        Writes the df back to original
+        :param df:
+        :param file:
+        :return:
+        """
         with open(file, "w") as f:
             for l in df["raw"].tolist():
                 f.write(l)
 
+    def run_similarity_comparer(self, comparison_type, trainfile, testfile):
+        """
+        Compares similarity between train and test
+        :param comparison_type:
+        :param trainfile:
+        :param testfile:
+        :return:
+        """
+        train = self._load(comparison_type, trainfile)
+        test = BC2GeneMentionText()._load(comparison_type, testfile)
 
-def _parse_args():
+        result_score, result_detail = SimilarityEvaluator().run(test, train, column="text")
+
+        for k, v in result_detail.items():
+            count = len(list(filter(lambda x: x[0] == x[1], v)))
+            print("Exact matches {}, {} / {}".format(k, count, len(test)))
+
+        return result_score, result_detail
+
+    def run_similarity_splitter(self, comparison_type, trainfile, testfile, outputdir, additional_eval_files=None,
+                                thresholds=None):
+        """
+Splits the train, test and additional eval/prediction files based on the thresholds and comparison type
+        :param comparison_type:
+        :param trainfile:
+        :param testfile:
+        :param outputdir:
+        :param additional_eval_files:
+        :param thresholds:
+        :return:
+        """
+        train = self._load(comparison_type, trainfile)
+        test = self._load(comparison_type, testfile)
+
+        additional_eval_files = additional_eval_files or ""
+        additional_eval_files = additional_eval_files.split(",") if len(additional_eval_files) > 0 else []
+
+        # Calculate scores based on similarity thresholds
+        thresholds = thresholds or [0, .00001, 25, 50, 75, 100, 101]
+        ngram = [1, 2, 3]
+        result_split_summary = []
+        for n in ngram:
+            for i in range(len(thresholds) - 1):
+                min_t = thresholds[i]
+                max_t = thresholds[i + 1]
+
+                outfile = os.path.join(outputdir, "{}_{}_{}.txt".format(os.path.basename(testfile), n, min_t))
+                splitter = SimilaritySplitter(ngram=n, column="text")
+                df = splitter.get(test, train, min_t, max_t)
+                BC2GeneMentionText().write(df, outfile)
+                self._split_predictions(df, additional_eval_files, outputdir, suffix="{}_{}.txt".format(n, min_t))
+                result_split_summary.append(
+                    {"ngram": n, "min": min_t, "max": max_t, "num": len(df), "percent": len(df) * 100 / len(test)})
+        return result_split_summary
+
+    def _load(self, comparison_type, data_file):
+        loaders = {
+            "text": self.load_text
+            , "eval": self.load_annotation
+        }
+
+        data = loaders[comparison_type](data_file)
+        return data
+
+    def _split_predictions(self, df, prediction_files, outputdir, suffix):
+        for eval_f in prediction_files:
+            print("Running {}".format(eval_f))
+            eval_df = self.load_annotation(eval_f)
+            filtered_eval_df = eval_df[eval_df["docid"].isin(df["docid"])]
+            outfile = os.path.join(outputdir, "{}_{}".format(os.path.basename(eval_f), suffix))
+            self.write(filtered_eval_df, outfile)
+
+
+def run_main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--trainfile",
                         help="The input train file ", required=True)
@@ -71,58 +160,15 @@ def _parse_args():
     logging.basicConfig(level=logging.getLevelName(args.log_level), handlers=[logging.StreamHandler(sys.stdout)],
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    return args
+    result_score, result_detail = BC2GeneMentionText().run_similarity_comparer(args.type, args.trainfile, args.testfile)
+    SimilarityEvaluator().print_summary(result_score, result_detail)
 
+    result_split_summary = BC2GeneMentionText().run_similarity_splitter(args.type, args.trainfile, args.testfile,
+                                                                        args.outdir,
+                                                                        args.extraeval)
 
-def write_extras(df, additional_eval_files, outputdir, suffix):
-    bc2gm = BC2GeneMentionText()
-
-    for eval_f in additional_eval_files:
-        print("Running {}".format(eval_f))
-        eval_df = bc2gm.load_annotation(eval_f)
-        filtered_eval_df = eval_df[eval_df["docid"].isin(df["docid"])]
-        outfile = os.path.join(outputdir, "{}_{}".format(os.path.basename(eval_f), suffix))
-        bc2gm.write(filtered_eval_df, outfile)
-
-
-def run(comparison_type, trainfile, testfile, outputdir, additional_eval_files=None):
-    loaders = {
-        "text": BC2GeneMentionText().load_text
-        , "eval": BC2GeneMentionText().load_annotation
-    }
-    additional_eval_files = additional_eval_files or ""
-    additional_eval_files = additional_eval_files.split(",") if len(additional_eval_files) > 0 else []
-    train = loaders[comparison_type](trainfile)
-    test = loaders[comparison_type](testfile)
-
-    result_score, result_detail = SimilarityEvaluator().run(test, train, column="text")
-
-    for k, v in result_detail.items():
-        count = len(list(filter(lambda x: x[0] == x[1], v)))
-        print("Exact matches {}, {} / {}".format(k, count, len(test)))
-
-    thresholds = [0, .00001, 25, 50, 75, 100, 101]
-    ngram = [1, 2, 3]
-    result_split_summary = []
-    for n in ngram:
-        for i in range(len(thresholds) - 1):
-            min_t = thresholds[i]
-            max_t = thresholds[i + 1]
-
-            outfile = os.path.join(outputdir, "{}_{}_{}.txt".format(os.path.basename(testfile), n, min_t))
-            splitter = SimilaritySplitter(ngram=n, column="text")
-            df = splitter.get(test, train, min_t, max_t)
-            BC2GeneMentionText().write(df, outfile)
-            write_extras(df, additional_eval_files, outputdir, suffix="{}_{}.txt".format(n, min_t))
-            result_split_summary.append(
-                {"ngram": n, "min": min_t, "max": max_t, "num": len(df), "percent": len(df) * 100 / len(test)})
-    return result_score, result_detail, result_split_summary
+    print(json.dumps(result_split_summary, indent=1))
 
 
 if "__main__" == __name__:
-    args = _parse_args()
-    result_score, result_detail, result_split_summary = run(args.type, args.trainfile, args.testfile, args.outdir,
-                                                            args.extraeval)
-    SimilarityEvaluator().print_summary(result_score, result_detail)
-
-    print(json.dumps(result_split_summary, indent=1))
+    run_main()
