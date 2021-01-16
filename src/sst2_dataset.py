@@ -82,12 +82,17 @@ class SST2Dataset:
     def load(self):
         return pd.DataFrame(self._train), pd.DataFrame(self._test)
 
+    def run_similarity_comparer(self):
+        train, test = self.load()
+        result_score, result_detail = SimilarityEvaluator().run(test, train, column="text")
+        return result_score, result_detail
+
     @property
     def _logger(self):
         return logging.getLogger(__name__)
 
 
-def _parse_args():
+def run_main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--sentencefile",
                         help="The input sentence file, e.g. datasetSentences.txt ", required=True)
@@ -104,14 +109,10 @@ def _parse_args():
     logging.basicConfig(level=logging.getLevelName(args.log_level), handlers=[logging.StreamHandler(sys.stdout)],
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    return args
-
-
-def run(raw_input_file, dictionary_phrase_map, phrase_sentiment, splits):
-    train, test = SST2Dataset(raw_input_file, phrase_sentiment, splits, dictionary_phrase_map).load()
-    SimilarityEvaluator().run(test, train, column="text")
+    result_score, result_detail = SST2Dataset(args.sentencefile, args.sentiment, args.split,
+                                              args.dictionary).run_similarity_comparer()
+    SimilarityEvaluator().print_summary(result_score, result_detail)
 
 
 if "__main__" == __name__:
-    args = _parse_args()
-    run(args.sentencefile, args.dictionary, args.sentiment, args.split)
+    run_main()
