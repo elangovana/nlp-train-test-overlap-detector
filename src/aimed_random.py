@@ -31,8 +31,13 @@ class AIMedRandom:
 
             yield (train, val)
 
+    def run_similarity_comparer(self, trainfile):
+        train, test = self.load(trainfile)
+        result_score, result_detail = SimilarityEvaluator().run(test, train, column="passage")
+        return result_score, result_detail
 
-def _parse_args():
+
+def run_main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--trainfile",
                         help="The input train file ", required=True)
@@ -43,14 +48,9 @@ def _parse_args():
     logging.basicConfig(level=logging.getLevelName(args.log_level), handlers=[logging.StreamHandler(sys.stdout)],
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    return args
-
-
-def run(trainfile):
-    train, test = AIMedRandom().load(trainfile)
-    SimilarityEvaluator().run(test, train, column="passage")
+    result_score, result_detail = AIMedRandom().run_similarity_comparer(args.trainfile)
+    SimilarityEvaluator().print_summary(result_score, result_detail)
 
 
 if "__main__" == __name__:
-    args = _parse_args()
-    run(args.trainfile)
+    run_main()
