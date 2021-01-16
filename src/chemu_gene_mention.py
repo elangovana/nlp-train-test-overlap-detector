@@ -10,6 +10,12 @@ from similarity.similarity_evaluator import SimilarityEvaluator
 
 class ChemuGeneMention:
 
+    def __init__(self):
+        self._type_column = {
+            "text": "text"
+            , "entity": "entity"
+        }
+
     def load(self, dir):
         data = []
         files = [os.path.join(dir, f) for f in os.listdir(dir)]
@@ -33,13 +39,58 @@ class ChemuGeneMention:
         df = pd.DataFrame(data=data)
         return df
 
+    def _run_similarity_comparer_text(self, traindir, testdir):
+        train = ChemuGeneMention().load(traindir)
+        test = ChemuGeneMention().load(testdir)
 
-def _parse_args():
+        # Evaluate text similarity, use unique text
+        result_score, result_detail = SimilarityEvaluator().run(pd.DataFrame(data={"text": test["text"].unique()}),
+                                                                pd.DataFrame(data={"text": train["text"].unique()}),
+                                                                column="text")
+
+        return result_score, result_detail
+
+    def _run_similarity_comparer_annotation(self, traindir, testdir):
+        train = ChemuGeneMention().load(traindir)
+        test = ChemuGeneMention().load(testdir)
+
+        # Evaluate overall entity
+        entity_score, entity_detail = SimilarityEvaluator().run(test, train, column="entity")
+
+        return entity_score, entity_detail
+
+    def _run_similarity_comparer_annotation_per_entity(self, traindir, testdir):
+        train = ChemuGeneMention().load(traindir)
+        test = ChemuGeneMention().load(testdir)
+
+        # Evaluate per entity type
+        for e in train["entity_type"].unique():
+            print("Running entity type {}".format(e))
+            query = "entity_type == '{}'".format(e)
+            train_entity = train.query(query)
+            test_entity = test.query(query)
+            entity_score, entity_detail = SimilarityEvaluator().run(test_entity, train_entity, column="entity")
+            yield entity_score, entity_detail, e
+
+    def run_similarity_comparer(self, traindir, testdir, type):
+        comparers = {
+            "text": self._run_similarity_comparer_text,
+            "entity": self._run_similarity_comparer_annotation,
+            "per_entity": self._run_similarity_comparer_annotation_per_entity
+        }
+        return comparers[type](traindir, testdir)
+
+
+def run_main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--traindir",
                         help="The train directory containing train .txt and .ann files ", required=True)
     parser.add_argument("--testdir",
                         help="The test file directory containing train .txt and .ann files", required=True)
+
+    parser.add_argument("--type",
+                        help="Specify the file as a text or annotation file", required=True,
+                        choices={"text", "entity"})
 
     parser.add_argument("--log-level", help="Log level", default="INFO", choices={"INFO", "WARN", "DEBUG", "ERROR"})
 
@@ -49,30 +100,11 @@ def _parse_args():
     logging.basicConfig(level=logging.getLevelName(args.log_level), handlers=[logging.StreamHandler(sys.stdout)],
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    return args
+    result_score, result_detail = ChemuGeneMention().run_similarity_comparer(args.traindir, args.testdir, args.type)
+    SimilarityEvaluator().print_summary(result_score, result_detail)
 
 
-def run(traindir, testdir):
-    train = ChemuGeneMention().load(traindir)
-    test = ChemuGeneMention().load(testdir)
-
-    # Evaluate text similarity, use unique text
-    _, result_detail = SimilarityEvaluator().run(pd.DataFrame(data={"text": test["text"].unique()}),
-                                                 pd.DataFrame(data={"text": train["text"].unique()}),
-                                                 column="text")
-
-    # Evaluate per entity type
-    for e in train["entity_type"].unique():
-        print("Running entity type {}".format(e))
-        query = "entity_type == '{}'".format(e)
-        train_entity = train.query(query)
-        test_entity = test.query(query)
-        _, result_detail = SimilarityEvaluator().run(test_entity, train_entity, column="entity")
-
-    # Evaluate overall entity
-    _, result_detail = SimilarityEvaluator().run(test, train, column="entity")
 
 
 if "__main__" == __name__:
-    args = _parse_args()
-    run(args.traindir, args.testdir)
+    run_main()
