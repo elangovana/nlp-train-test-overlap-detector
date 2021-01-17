@@ -19,6 +19,18 @@ import re
 import subprocess
 import sys
 
+F_SCORE = "F-score"
+
+RECALL = "Recall"
+
+PRECISION = "Precision"
+
+FN = "FN"
+
+TP = "TP"
+
+FP = "FP"
+
 
 class BC2GeneMentionEvalWrapper:
     """
@@ -118,15 +130,15 @@ class BC2GeneMentionEvalWrapper:
         """
         result = {}
 
-        result["FP"] = int(self._extract_pattern(r"FP: (\d+)\n", raw_eval_scores))
+        result[FP] = int(self._extract_pattern(r"FP: (\d+)\n", raw_eval_scores))
 
-        result["TP"] = int(self._extract_pattern(r"TP: (\d+)\n", raw_eval_scores))
+        result[TP] = int(self._extract_pattern(r"TP: (\d+)\n", raw_eval_scores))
 
-        result["FN"] = int(self._extract_pattern(r"FN: (\d+)\n", raw_eval_scores))
+        result[FN] = int(self._extract_pattern(r"FN: (\d+)\n", raw_eval_scores))
 
-        result["Precision"] = float(self._extract_pattern(r"Precision: (0?\.\d+)", raw_eval_scores))
-        result["Recall"] = float(self._extract_pattern(r"Recall: (0?\.\d+)", raw_eval_scores))
-        result["F-score"] = float(self._extract_pattern(r"F: (0?\.\d+)", raw_eval_scores))
+        result[PRECISION] = float(self._extract_pattern(r"Precision: (0?\.?\d+)", raw_eval_scores))
+        result[RECALL] = float(self._extract_pattern(r"Recall: (0?\.?\d+)", raw_eval_scores))
+        result[F_SCORE] = float(self._extract_pattern(r"F: (0?\.?\d+)", raw_eval_scores))
 
         return result
 
