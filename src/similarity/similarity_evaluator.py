@@ -8,15 +8,22 @@ from similarity.overlap_detector import OverlapDetector
 
 class SimilarityEvaluator:
 
-    def __init__(self):
-        self._tokenisers = {"Unigram": 1,
+    def __init__(self, ngrams_dict=None):
+        """
+
+        :param ngrams_dict: Name and ngram. Example
+                            {"Unigram": 1,
+                            "Bigram": 2,
+                            "Trigram": 3}
+        """
+        self._ngrams = ngrams_dict or {"Unigram": 1,
                             "Bigram": 2,
                             "Trigram": 3}
 
     def run(self, test, train, column):
         result_score = {}
         result_detail = {}
-        for k, t in self._tokenisers.items():
+        for k, t in self._ngrams.items():
             comparer = OverlapDetector(CosineSimilarityComparer(t))
             comparison_result = comparer.compare(test, train, columns=[column])
             scores = comparison_result[column]["score"]
