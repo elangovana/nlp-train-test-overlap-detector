@@ -153,7 +153,7 @@ class BC2GeneMentionEvalWrapper:
         Runs a shell command
         :param cmd: The cmd to run
         """
-        print("Running command\n{}".format(" ".join(cmd)))
+        self._logger.info("Running command\n{}".format(" ".join(cmd)))
 
         out = subprocess.Popen(
             cmd,
