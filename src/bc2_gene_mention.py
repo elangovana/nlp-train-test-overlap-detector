@@ -109,7 +109,7 @@ Splits the train, test and additional eval/prediction files based on the thresho
         test = self._load(comparison_type, testfile)
 
         # Calculate scores based on similarity thresholds
-        thresholds = thresholds or [0, .00001, 25, 50, 75, 100, 101]
+        thresholds = thresholds or [0, .00001, 25, 50, 75, 100]
         ngram = ngram or [1, 2, 3]
         result_split_summary = []
         for n in ngram:
@@ -117,7 +117,8 @@ Splits the train, test and additional eval/prediction files based on the thresho
 
             for i in range(len(thresholds) - 1):
                 min_t = thresholds[i]
-                max_t = thresholds[i + 1]
+                # For the last threshold send as None ..
+                max_t = thresholds[i + 1] if (i + 1) < (len(thresholds) - 1) else None
                 self._logger.info("Splitting on threshold {}-{}".format(min_t, max_t))
 
                 outfile = os.path.join(outputdir, "{}_{}_{}.txt".format(os.path.basename(testfile), n, min_t))

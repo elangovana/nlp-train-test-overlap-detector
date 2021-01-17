@@ -9,9 +9,12 @@ class SimilaritySplitter:
         self._ngram = ngram
         self._comparer = comparer or OverlapDetector(CosineSimilarityComparer(self._ngram))
 
-    def get(self, test_df, train_df, similarity_threshold_min=-1, similarity_theshold_max=1):
+    def get(self, test_df, train_df, similarity_threshold_min=None, similarity_theshold_max=None):
         comparison_result = self._comparer.compare(test_df, train_df, columns=[self._column])
         scores = comparison_result[self._column]["score"]
+
+        similarity_threshold_min = similarity_threshold_min or min(scores)
+        similarity_theshold_max = similarity_theshold_max or max(scores) + 1
 
         select_flag = [similarity_threshold_min <= i < similarity_theshold_max for i in scores]
 
