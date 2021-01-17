@@ -142,6 +142,20 @@ Splits the train, test and additional eval/prediction files based on the thresho
                      "recall": score[RECALL]
                      }
                 )
+
+        # Full score
+        _, score = self._bc2gm_eval.get_score(test_gene_file, test_alt_gene_file, prediction_file)
+        result_split_summary.append(
+            {"ngram": -1,
+             "min": 0,
+             "max": 100,
+             "num": len(test),
+             "percent": len(test) * 100 / len(test),
+             "f-score": score[F_SCORE],
+             "precision": score[PRECISION],
+             "recall": score[RECALL]
+             }
+        )
         return result_split_summary
 
     def run_similarity_parts_splitter(self, comparison_type, trainfile, testfile, outputdir, test_gene_file,
@@ -196,6 +210,20 @@ Splits the results into n parts based sorted by similarity
                  }
             )
             result_split_df.append(part_df)
+
+        # Full score
+        _, score = self._bc2gm_eval.get_score(test_gene_file, test_alt_gene_file, prediction_file)
+        result_split_summary.append(
+            {"ngram": -1,
+             "min": 0,
+             "max": 100,
+             "num": len(test_df),
+             "percent": len(test_df) * 100 / len(test_df),
+             "f-score": score[F_SCORE],
+             "precision": score[PRECISION],
+             "recall": score[RECALL]
+             }
+        )
         return result_split_summary, result_split_df
 
     def _compute_split_score(self, df, test_gene_file, test_alt_gene_file, prediction_file, outputdir, suffix=None):
