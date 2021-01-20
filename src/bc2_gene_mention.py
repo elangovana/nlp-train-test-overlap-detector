@@ -1,6 +1,7 @@
 import argparse
 import json
 import logging
+import math
 import os
 import sys
 
@@ -186,7 +187,7 @@ Splits the results into n parts based sorted by similarity
 
         test_df = test_df.sort_values(by=ngram)
 
-        part_size = test_df.shape[0] // num_parts
+        part_size = int(math.ceil(test_df.shape[0] / num_parts))
         for start in range(0, test_df.shape[0], part_size):
             end = min(start + part_size, test_df.shape[0])
             part_df = test_df.iloc[start: end]
