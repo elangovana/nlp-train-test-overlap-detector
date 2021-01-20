@@ -59,7 +59,8 @@
 
     ```bash
     export PYTHONPATH=./src
-    python src/bc3_article_classification.py --trainfile "bc3_act_all_records.tsv" --testfile "bc3_act_all_records_test.tsv" 
+    export datadir=./tmp
+    python src/bc3_article_classification.py --trainfile $datadir/bc3_act_all_records.tsv --testfile $datadir/bc3_act_all_records_test.tsv --testgoldfile $datadir/bc3_act_gold_standard_test.tsv --predictionsfile $datadir/bc3act-output.csv
     
     ```
 
@@ -73,14 +74,14 @@
     python src/chemu_gene_mention.py --traindir "train" --testdir "test" 
     
     ```
-    s
+    
 
 ## SST 2 datatset
 
 ```bash
 export PYTHONPATH=./src
 export datadir=./tmp
-python src/sst2_dataset.py  --sentencefile $datadir/datasetSentences.txt --sentiment $datadir/sentiment_labels.txt --dictionary $datadir/dictionary.txt --split $datadir/datasetSplit.txt 
+python src/sst2_dataset.py  --sentencefile $datadir/datasetSentences.txt --sentiment $datadir/sentiment_labels.txt --dictionary $datadir/dictionary.txt --split $datadir/datasetSplit.txt --predictionsfile $datadir/sst2-output.csv
 
 ```
 
