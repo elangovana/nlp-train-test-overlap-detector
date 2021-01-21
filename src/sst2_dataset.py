@@ -57,7 +57,7 @@ class SST2Dataset:
             for l in f.readlines()[1:]:
                 phrase_id, confidence = l.split(sep)[0], l.split(sep)[1].rstrip("\n")
                 phrase_id = int(phrase_id)
-                phrase_sentiment[phrase_id] = "Negative" if float(confidence) < 0.5 else "Positive"
+                phrase_sentiment[phrase_id] = "0" if float(confidence) < 0.5 else "1"
 
         return phrase_sentiment
 
@@ -128,9 +128,9 @@ class SST2Dataset:
                 df = splitter.get(test, train, min_t, max_t)
 
                 accuracy = accuracy_score(df["actual"], df["predictions"])
-                f1 = f1_score(df["actual"], df["predictions"], pos_label="Positive", average="binary")
-                p = precision_score(df["actual"], df["predictions"], pos_label="Positive", average="binary")
-                r = recall_score(df["actual"], df["predictions"], pos_label="Positive", average="binary")
+                f1 = f1_score(df["actual"], df["predictions"], pos_label="1", average="binary")
+                p = precision_score(df["actual"], df["predictions"], pos_label="1", average="binary")
+                r = recall_score(df["actual"], df["predictions"], pos_label="1", average="binary")
 
                 result_split_summary.append(
                     {"ngram": n,
@@ -147,9 +147,9 @@ class SST2Dataset:
 
         # Full score
         accuracy = accuracy_score(test["actual"], test["predictions"])
-        f1 = f1_score(test["actual"], test["predictions"], pos_label="Positive", average="binary")
-        p = precision_score(test["actual"], test["predictions"], pos_label="Positive", average="binary")
-        r = recall_score(test["actual"], test["predictions"], pos_label="Positive", average="binary")
+        f1 = f1_score(test["actual"], test["predictions"], pos_label="1", average="binary")
+        p = precision_score(test["actual"], test["predictions"], pos_label="1", average="binary")
+        r = recall_score(test["actual"], test["predictions"], pos_label="1", average="binary")
 
         result_split_summary.append(
             {"ngram": -1,
@@ -201,9 +201,9 @@ Splits the results into n parts based sorted by similarity
             part_df = test_df.iloc[start: end]
 
             accuracy = accuracy_score(part_df["actual"], part_df["predictions"])
-            f1 = f1_score(part_df["actual"], part_df["predictions"], pos_label="Positive", average="binary")
-            p = precision_score(part_df["actual"], part_df["predictions"], pos_label="Positive", average="binary")
-            r = recall_score(part_df["actual"], part_df["predictions"], pos_label="Positive", average="binary")
+            f1 = f1_score(part_df["actual"], part_df["predictions"], pos_label="1", average="binary")
+            p = precision_score(part_df["actual"], part_df["predictions"], pos_label="1", average="binary")
+            r = recall_score(part_df["actual"], part_df["predictions"], pos_label="1", average="binary")
 
             result_split_summary.append(
                 {"ngram": ngram_i,
@@ -221,9 +221,9 @@ Splits the results into n parts based sorted by similarity
 
         # Full score
         accuracy = accuracy_score(test_df["actual"], test_df["predictions"])
-        f1 = f1_score(test_df["actual"], test_df["predictions"], pos_label="Positive", average="binary")
-        p = precision_score(test_df["actual"], test_df["predictions"], pos_label="Positive", average="binary")
-        r = recall_score(test_df["actual"], test_df["predictions"], pos_label="Positive", average="binary")
+        f1 = f1_score(test_df["actual"], test_df["predictions"], pos_label="1", average="binary")
+        p = precision_score(test_df["actual"], test_df["predictions"], pos_label="1", average="binary")
+        r = recall_score(test_df["actual"], test_df["predictions"], pos_label="1", average="binary")
 
         result_split_summary.append(
             {"ngram": -1,
