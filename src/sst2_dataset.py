@@ -1,4 +1,5 @@
 import argparse
+import csv
 import logging
 import math
 import sys
@@ -16,13 +17,8 @@ DEVID = 3
 
 class SST2Dataset:
 
-    def __init__(self, raw_input_file, label_file, split_file, dictionary):
-        splits = self._load_splits(split_file)
-        dictionary_phrase_map = self._load_dictionary(dictionary)
-        phrase_sentiment = self._load_phrase_sentiments(label_file)
-
-        self._train, self._dev, self._test = self._load_sentences_with_sentiment(raw_input_file, dictionary_phrase_map,
-                                                                                 phrase_sentiment, splits)
+    def __init__(self):
+        pass
 
     def _load_sentences_with_sentiment(self, raw_input_file, dictionary_phrase_map, phrase_sentiment, splits):
         train, dev, test = [], [], []
@@ -61,16 +57,36 @@ class SST2Dataset:
 
         return phrase_sentiment
 
-    def _load_predictions(self, label_file):
-        phrase_sentiment = {}
-        sep = "|"
-        with open(label_file, "r") as f:
-            for l in f.readlines():
-                phrase_id, sentiment = l.split(sep)[0], l.split(sep)[1].rstrip("\n")
-                phrase_id = int(phrase_id)
-                phrase_sentiment[phrase_id] = sentiment
+    def _load_predictions(self, predictions_file, phrase_sentiment_file, dictionary_file):
+        predictions = []
+        actual = []
+        sep = "\t"
+        dictionary = self._load_dictionary(dictionary_file)
+        phrase_sentiment = self._load_phrase_sentiments(phrase_sentiment_file)
 
-        return phrase_sentiment
+        lines_skipped = 0
+        with open(predictions_file, "r") as f:
+            csv_reader = csv.reader(f, delimiter=sep,
+                                    quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            next(csv_reader)
+            for l in csv_reader:
+
+                pred, text = l[0], l[1]
+                if text not in dictionary:
+                    self._logger.warning("{} not found".format(l))
+                    lines_skipped += 1
+                    actual_label = "0"
+                else:
+                    phrase_id = dictionary[text]
+                    actual_label = phrase_sentiment[phrase_id]
+
+                predictions.append(pred)
+                actual.append(actual_label)
+
+        self._logger.warning(
+            "{} predictons skipped as no label found , {} parsed".format(lines_skipped, len(predictions)))
+
+        return actual, predictions
 
     def _load_splits(self, split_file):
         splits = {}
@@ -83,36 +99,62 @@ class SST2Dataset:
 
         return splits
 
+    def _load_train(self, datafile):
+        result = []
+        with open(datafile, "r") as f:
+            csv_reader = csv.reader(f, delimiter="\t",
+                                    quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+            next(csv_reader)
+            for l in csv_reader:
+                text, label = l[0], l[1]
+                result.append({"text": text, "label": label})
+
+        return result
+
+    def _load_test(self, datafile):
+        result = []
+        with open(datafile, "r") as f:
+            csv_reader = csv.reader(f, delimiter="\t",
+                                    quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+            next(csv_reader)
+            for l in csv_reader:
+                id, text = l[0], l[1]
+                result.append({"text": text, "label": None})
+
+        return result
+
     def _load_dictionary(self, dictionary_file):
         dictionary_phrase_map = {}
         with open(dictionary_file, "r", encoding="utf-8") as f:
             for l in f.readlines()[1:]:
                 text, phrase_id = l.split("|")[0], l.split("|")[1].rstrip("\n")
                 phrase_id = int(phrase_id)
-                dictionary_phrase_map[text] = int(phrase_id)
+                dictionary_phrase_map["{}".format(text.lower().replace("\\", ""))] = int(phrase_id)
 
         return dictionary_phrase_map
 
-    def load(self):
-        return pd.DataFrame(self._train), pd.DataFrame(self._test)
+    def load(self, train_file, test_file):
+        return pd.DataFrame(self._load_train(train_file)), pd.DataFrame(self._load_test(test_file))
 
-    def run_similarity_comparer(self):
-        train, test = self.load()
+    def run_similarity_comparer(self, trainfile, testfile):
+        train, test = self.load(trainfile, testfile)
         result_score, result_detail = SimilarityEvaluator().run(test, train, column="text")
         return result_score, result_detail
 
-    def run_similarity_threshold_splitter(self, predictionsfile, thresholds=None,
+    def run_similarity_threshold_splitter(self, trainfile, testfile, predictionsfile, sentiments_file, dictionaryfile,
+                                          thresholds=None,
                                           ngram=None):
-        train, test = self.load()
+        train, test = self.load(trainfile, testfile)
 
         # Calculate scores based on similarity thresholds
         thresholds = thresholds or [0, .00001, 25, 50, 75, 100]
         ngram = ngram or [1, 2, 3]
         result_split_summary = []
 
-        prediction_map = self._load_predictions(predictionsfile)
-        test["predictions"] = test["id"].apply(lambda x: prediction_map[x])
-        test["actual"] = test["label"]
+        test["actual"], test["predictions"] = self._load_predictions(predictionsfile, sentiments_file, dictionaryfile)
+
         for n in ngram:
             self._logger.info("Splitting based on ngram {}".format(n))
 
@@ -165,7 +207,8 @@ class SST2Dataset:
         )
         return result_split_summary
 
-    def run_similarity_parts_splitter(self, predictionsfile, num_parts=4):
+    def run_similarity_parts_splitter(self, trainfile, testfile, predictionsfile, sentiments_file, dictionaryfile,
+                                      num_parts=4):
         """
 Splits the results into n parts based sorted by similarity
         :param comparison_type:
@@ -178,17 +221,16 @@ Splits the results into n parts based sorted by similarity
         :param num_parts:
         :return:
         """
-        train_df, test_df = self.load()
+        train_df, test_df = self.load(trainfile, testfile)
 
-        prediction_map = self._load_predictions(predictionsfile)
-        test_df["predictions"] = test_df["id"].apply(lambda x: prediction_map[x])
-        test_df["actual"] = test_df["label"]
+        test_df["actual"], test_df["predictions"] = self._load_predictions(predictionsfile, sentiments_file,
+                                                                           dictionaryfile)
 
         result_split_summary = []
         result_split_df = []
 
         # Sort based on sim score
-        result_score, result_detail = self.run_similarity_comparer()
+        result_score, result_detail = self.run_similarity_comparer(trainfile, testfile)
         result_df = self._scores_to_df(result_score, result_detail)
         ngram, ngram_i = "Unigram", 1
         test_df[ngram] = result_df[ngram]
@@ -256,16 +298,17 @@ Splits the results into n parts based sorted by similarity
 
 def run_main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sentencefile",
-                        help="The input sentence file, e.g. datasetSentences.txt ", required=True)
+    parser.add_argument("--trainfile",
+                        help="The train file from glue", required=True)
+    parser.add_argument("--testfile",
+                        help="The test file from glue ", required=True)
     parser.add_argument("--sentiment",
-                        help="The sentiment file, e.g. sentiment_labels.txt ", required=True)
+                        help="The sentiment file, e.g. sentiment_labels.txt ", required=False, default=None)
     parser.add_argument("--dictionary",
-                        help="The dictionary file, dictionary.txt", required=True)
-    parser.add_argument("--split",
-                        help="The split file, e.g. datasetSplit.txt ", required=True)
+                        help="The dictionary file, dictionary.txt", required=False, default=None)
+
     parser.add_argument("--predictionsfile",
-                        help="The predictions file, e.g. predictions.txt ", required=True)
+                        help="The predictions file, e.g. predictions.txt ", required=False)
     parser.add_argument("--log-level", help="Log level", default="INFO", choices={"INFO", "WARN", "DEBUG", "ERROR"})
     args = parser.parse_args()
     print(args.__dict__)
@@ -273,20 +316,18 @@ def run_main():
     logging.basicConfig(level=logging.getLevelName(args.log_level), handlers=[logging.StreamHandler(sys.stdout)],
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    result_score, result_detail = SST2Dataset(args.sentencefile, args.sentiment, args.split,
-                                              args.dictionary).run_similarity_comparer()
+    result_score, result_detail = SST2Dataset().run_similarity_comparer(args.trainfile, args.testfile)
     SimilarityEvaluator().print_summary(result_score, result_detail)
 
     if args.predictionsfile is not None:
         print("--- Similarity parts splitter---")
-        result = SST2Dataset(args.sentencefile, args.sentiment, args.split,
-                             args.dictionary).run_similarity_parts_splitter(
-            args.predictionsfile)
+        result, _ = SST2Dataset().run_similarity_parts_splitter(args.trainfile, args.testfile,
+                                                                args.predictionsfile, args.sentiment, args.dictionary)
         print(result)
 
-        result, _ = SST2Dataset(args.sentencefile, args.sentiment, args.split,
-                                args.dictionary).run_similarity_threshold_splitter(
-            args.predictionsfile)
+        result = SST2Dataset().run_similarity_threshold_splitter(args.trainfile, args.testfile,
+                                                                 args.predictionsfile, args.sentiment,
+                                                                 args.dictionary)
         print("--- Similarity threshold splitter---")
         print(result)
 
