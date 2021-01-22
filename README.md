@@ -81,7 +81,7 @@
 ```bash
 export PYTHONPATH=./src
 export datadir=./tmp
-python src/sst2_dataset.py  --sentencefile $datadir/datasetSentences.txt --sentiment $datadir/sentiment_labels.txt --dictionary $datadir/dictionary.txt --split $datadir/datasetSplit.txt --predictionsfile $datadir/sst2-output.csv
+python src/sst2_dataset.py  --trainfile $datadir/train.tsv --testfile $datadir/test.tsv --dictionary $datadir/dictionary.txt  --predictionsfile $datadir/sst2-output.csv --sentiment $datadir/sentiment_labels.txt 
 
 ```
 
