@@ -183,8 +183,8 @@ Splits the results into n parts based sorted by similarity
 
         result_split_summary.append(
             {"ngram": -1,
-             "min": 0,
-             "max": 100,
+             "min": test_df[ngram].min(),
+             "max": test_df[ngram].max(),
              "num": len(test_df),
              "percent": len(test_df) * 100 / len(test_df),
              "f-score": f1,

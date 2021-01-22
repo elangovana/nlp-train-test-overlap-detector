@@ -217,8 +217,8 @@ Splits the results into n parts based sorted by similarity
         _, score = self._bc2gm_eval.get_score(test_gene_file, test_alt_gene_file, prediction_file)
         result_split_summary.append(
             {"ngram": -1,
-             "min": 0,
-             "max": 100,
+             "min": test_df[ngram].min(),
+             "max": test_df[ngram].max(),
              "num": len(test_df),
              "percent": len(test_df) * 100 / len(test_df),
              "f-score": score[F_SCORE],
