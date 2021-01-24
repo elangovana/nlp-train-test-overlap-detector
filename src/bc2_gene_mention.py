@@ -113,6 +113,7 @@ Splits the train, test and additional eval/prediction files based on the thresho
         thresholds = thresholds or [0, .00001, 25, 50, 75, 100]
         ngram = ngram or [1, 2, 3]
         result_split_summary = []
+        result_details = []
         for n in ngram:
             self._logger.info("Splitting based on ngram {}".format(n))
 
@@ -128,6 +129,7 @@ Splits the train, test and additional eval/prediction files based on the thresho
                 # Split test based on similarity score
                 df = splitter.get(test, train, min_t, max_t)
                 self.write(df, outfile)
+                result_details.append(df)
 
                 suffix = "{}_{}".format(n, min_t)
                 score = self._compute_split_score(df, test_gene_file, test_alt_gene_file, prediction_file, outputdir,
@@ -158,7 +160,7 @@ Splits the train, test and additional eval/prediction files based on the thresho
              "recall": score[RECALL]
              }
         )
-        return result_split_summary
+        return result_split_summary, result_details
 
     def run_similarity_parts_splitter(self, comparison_type, trainfile, testfile, outputdir, test_gene_file,
                                       test_alt_gene_file, prediction_file, num_parts=4):
@@ -262,14 +264,15 @@ Splits the results into n parts based sorted by similarity
 
         return df
 
-    def _split_predictions(self, df, file_to_split, outfile):
+    def _split_predictions(self, df, file_to_split, outfile=None):
 
         eval_df = self.load_annotation(file_to_split)
         filtered_eval_df = eval_df[eval_df["docid"].isin(df["docid"])]
 
-        self._logger.info("Write split {}".format(outfile))
-
-        self.write(filtered_eval_df, outfile)
+        if outfile:
+            self._logger.info("Write split {}".format(outfile))
+            self.write(filtered_eval_df, outfile)
+        return filtered_eval_df
 
     @property
     def _logger(self):
@@ -317,11 +320,11 @@ def run_main():
         assert args.altgene is not None, "If gene file is provided the altgene must also be provided"
         assert args.prediction is not None, "If gene file is provided the prediction must also be provided"
 
-        result_split_summary = BC2GeneMentionText().run_similarity_threshold_splitter(args.type, args.trainfile,
-                                                                                      args.testfile,
-                                                                                      args.outdir,
-                                                                                      args.gene, args.altgene,
-                                                                                      args.prediction)
+        result_split_summary, _ = BC2GeneMentionText().run_similarity_threshold_splitter(args.type, args.trainfile,
+                                                                                         args.testfile,
+                                                                                         args.outdir,
+                                                                                         args.gene, args.altgene,
+                                                                                         args.prediction)
 
         print(json.dumps(result_split_summary, indent=1))
 

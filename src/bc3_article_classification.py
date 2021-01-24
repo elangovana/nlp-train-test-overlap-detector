@@ -30,7 +30,7 @@ class BC3ArticleClassification:
         df = pd.DataFrame(data)
         return df
 
-    def _get_labels(self, df, anno_or_predictions):
+    def get_labels(self, df, anno_or_predictions):
         labels_map = self._load_annotations(anno_or_predictions)
         return df["id"].apply(lambda x: labels_map[x])
 
@@ -67,8 +67,8 @@ class BC3ArticleClassification:
         ngram = ngram or [1, 2, 3]
         result_split_summary = []
 
-        test["actual"] = self._get_labels(test, testgoldfile)
-        test["predictions"] = self._get_labels(test, predictionsfile)
+        test["actual"] = self.get_labels(test, testgoldfile)
+        test["predictions"] = self.get_labels(test, predictionsfile)
 
         for n in ngram:
             self._logger.info("Splitting based on ngram {}".format(n))
@@ -137,8 +137,8 @@ Splits the results into n parts based sorted by similarity
         """
         test_df = self.load(testfile)
 
-        test_df["actual"] = self._get_labels(test_df, testgoldfile)
-        test_df["predictions"] = self._get_labels(test_df, predictionsfile)
+        test_df["actual"] = self.get_labels(test_df, testgoldfile)
+        test_df["predictions"] = self.get_labels(test_df, predictionsfile)
 
         result_split_summary = []
         result_split_df = []
