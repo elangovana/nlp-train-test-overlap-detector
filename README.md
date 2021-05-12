@@ -2,6 +2,9 @@
 
 # NLP Train-Test overlap detector
 
+This repo contains the source code for `Memorization vs. Generalization : Quantifying Data Leakage in NLP Performance Evaluation` EACL 2021 Main conference paper
+https://www.aclweb.org/anthology/2021.eacl-main.113/
+
 Please cite paper
 
 ```text
