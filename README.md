@@ -8,12 +8,19 @@ https://www.aclweb.org/anthology/2021.eacl-main.113/
 Please cite paper
 
 ```text
-@inproceedings{elangovan2021memorization,
-  title={Memorization vs. Generalization: Quantifying Data Leakage in NLP Performance Evaluation},
-  author={Elangovan, Aparna and He, Jiayuan and Verspoor, Karin},
-  booktitle={Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume},
-  pages={1325--1335},
-  year={2021}
+@inproceedings{elangovan-etal-2021-memorization,
+    title = "Memorization vs. Generalization : Quantifying Data Leakage in {NLP} Performance Evaluation",
+    author = "Elangovan, Aparna  and
+      He, Jiayuan  and
+      Verspoor, Karin",
+    booktitle = "Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume",
+    month = apr,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/2021.eacl-main.113",
+    pages = "1325--1335",
+    abstract = "Public datasets are often used to evaluate the efficacy and generalizability of state-of-the-art methods for many tasks in natural language processing (NLP). However, the presence of overlap between the train and test datasets can lead to inflated results, inadvertently evaluating the model{'}s ability to memorize and interpreting it as the ability to generalize. In addition, such data sets may not provide an effective indicator of the performance of these methods in real world scenarios. We identify leakage of training data into test data on several publicly available datasets used to evaluate NLP tasks, including named entity recognition and relation extraction, and study them to assess the impact of that leakage on the model{'}s ability to memorize versus generalize.",
 }
 ```
 
