@@ -3,6 +3,8 @@
 # NLP Train-Test overlap detector
 
 Please cite paper
+
+```text
 @inproceedings{elangovan2021memorization,
   title={Memorization vs. Generalization: Quantifying Data Leakage in NLP Performance Evaluation},
   author={Elangovan, Aparna and He, Jiayuan and Verspoor, Karin},
@@ -10,6 +12,7 @@ Please cite paper
   pages={1325--1335},
   year={2021}
 }
+```
 
 More details in Notebook
 
