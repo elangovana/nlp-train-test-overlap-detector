@@ -14,7 +14,7 @@ Please cite paper
 }
 ```
 
-More details in Notebook
+More details in Notebook [Similarity.ipynb](Similarity.ipynb) and [SimilaritySplitter.ipynb](SimilaritySplitter.ipynb)
 
 
 ## AIMed dataset
